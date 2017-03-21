@@ -607,6 +607,7 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
         this.page = 0;
 
         this.el = 'string' === typeof el ? document.getElementById(el) : el;
+        console.log(this.el);
         this.container = this.el.getElementsByClassName('tvp-videos-scroller')[0];
 
         this.onClick = Utils.isset(options.onClick) && Utils.isFunction(options.onClick) ? options.onClick : null;
