@@ -1,0 +1,8 @@
+baseurl="/"
+MetaDataFormat="json"
+title="Reebok"
+languageCode="en-us"
+disablePathToLower="true"
+
+[params]
+CopyrightHTML="Copyright &#xA9; 2016 TvPage. All Rights Reserved."
