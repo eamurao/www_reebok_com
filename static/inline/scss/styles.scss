@@ -385,13 +385,15 @@ body {
             padding: 3px;
             &.slick-active{
                 .tvp-product-item{
-                    &.tvp-active{
+                    @extend .tvp-animate;
+                    &:hover, &.tvp-active{
                         opacity: 1;
                         &:after{
                             border-color: #fff;
                         }
                     }
                     &:after{
+                        @extend .tvp-animate;
                         bottom: -3px;
                         border: 1px solid transparent;
                         cursor: pointer;
@@ -400,9 +402,6 @@ body {
                         right: -3px;
                         position: absolute;
                         top: -3px;
-                    }
-                    &:first-child{
-
                     }
                 }
             }
@@ -417,22 +416,6 @@ body {
             width: 100%;
             position: relative;
             margin-bottom: 5px;
-            // &.tvp-active{
-            //     opacity: 1;
-            //     &:after{
-            //         border-color: #fff;
-            //     }
-            // }
-            // &:after{
-            //     bottom: -3px;
-            //     border: 1px solid transparent;
-            //     cursor: pointer;
-            //     content: " ";
-            //     left: -3px;
-            //     right: -3px;
-            //     position: absolute;
-            //     top: -3px;
-            // }
             .tvp-product-image {
                 @include aspect-ratio(1, 1);
                 background-size: cover;
