@@ -164,7 +164,12 @@
                     });
 
                     $(_container).on('beforeChange', function(event, slick, currentSlide, nextSlide) {
-                        var prodItem = $(slick.$slides[nextSlide]).find('.tvp-product-item')[0];
+                        var $nextContainer = $(slick.$slides[nextSlide]);
+                        var $currentContainer = $(slick.$slides[nextSlide]);
+                        $currentContainer.find('.tvp-product-item').each(function(index, el) {
+                            $(el).removeClass('tvp-active');
+                        });
+                        var prodItem = $nextContainer.find('.tvp-product-item')[0];
                         $(prodItem).addClass('tvp-active');
                     });
 
@@ -418,7 +423,16 @@
             }
             else if (getTarget('tvp-product-item')){
                 var selected = getSelectedData(productData, target.getAttribute('data-id'));
-                renderFeaturedProduct(selected);
+                e.preventDefault();
+
+                $(target.parentElement).find('.tvp-product-item').each(function(index, el) {
+                    $(el).removeClass('tvp-active');
+                }); 
+
+                if (!$(target).hasClass('tvp-active')) {
+                    target.className += ' tvp-active';
+                }
+                renderFeaturedProduct(selected);                
             }
         };
 
