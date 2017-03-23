@@ -418,6 +418,17 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
         return obj.classList.contains(c);
     };
 
+    var getSelectedData = function (_data, id) {        
+        var selected = {};
+        var data = _data;
+        for (var i = 0; i < data.length; i++) {
+            if (data[i].id == id) {
+                selected = data[i];
+            }
+        }
+        return selected;
+    };
+
     var loadProducts = function(videoId, loginId, fn) {
         if (!videoId) return;
         var src = '//api.tvpage.com/v1/videos/' + videoId + '/products?X-login-id=' + loginId;
@@ -550,6 +561,10 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
                         });
                         var prodItem = $nextContainer.find('.tvp-product-item')[0];
                         $(prodItem).addClass('tvp-active');
+
+                        var selected = getSelectedData(productData, $(prodItem).data('id'));
+                        
+                        renderFeaturedProduct(selected);
                     });
 
                     // if (isProductsInitialized && !Utils.isMobile) {
@@ -768,16 +783,6 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
         this.el.onclick = function(e) {
 
             var target;
-            var getSelectedData = function (_data, id) {
-                var selected = {};
-                var data = _data;
-                for (var i = 0; i < data.length; i++) {
-                    if (data[i].id === id) {
-                        selected = data[i];
-                    }
-                }
-                return selected;
-            };
 
             var getTarget = function (name) {                
                 for (var i = 0; i < e.path.length; i++) {
@@ -811,7 +816,7 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
                 if (!$(target).hasClass('tvp-active')) {
                     target.className += ' tvp-active';
                 }
-                renderFeaturedProduct(selected);                
+                renderFeaturedProduct(selected);
             }
         };
 
