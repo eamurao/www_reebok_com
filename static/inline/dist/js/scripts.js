@@ -31,7 +31,7 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
 
     this.initConfig = function(options){
       if (!isset(options) || !isset(options.loginId) || !isset(options.domain) || !isset(options.logUrl)) {
-        return console.log('need config');
+        return; //console.log('need config');
       }
       
       _tvpa.push(['config', {
@@ -42,7 +42,7 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
     };
 
     this.track = function(e,data){
-      if (!e || !data || typeof _tvpa === "undefined") return console.log('no data');
+      if (!e || !data || typeof _tvpa === "undefined") return; // console.log('no data');
       _tvpa.push(['track', e, data]);
     };
     
@@ -137,26 +137,12 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
         },
         isFunction = function(obj){
             return 'undefined' !== typeof obj;
-        },
-        debounce = function(func,wait,immediate) {
-            var timeout = null;
-            return function() {
-                var context = this, args = arguments;
-                var later = function() {
-                    timeout = null;
-                    if (!immediate) func.apply(context, args);
-                };
-                var callNow = immediate && !timeout;
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-                if (callNow) func.apply(context, args);
-            };
         };
 
     //The player singleton. We basically create an instance from the tvpage
     //player and expose most utilities, helping to encapsualte what is required for a few players to co-exist.
     function Player(el, options, startWith) {
-        if (!el || !isset(options) || !isset(options.data) || options.data.length <= 0) return console.log('bad args');
+        if (!el || !isset(options) || !isset(options.data) || options.data.length <= 0) return; // console.log('bad args');
 
         this.isFullScreen = false;
         this.initialResize = true;
@@ -255,7 +241,7 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
         };
 
         this.play = function(asset,ongoing){
-            if (!asset) return console.log('need asset');
+            if (!asset) return; // console.log('need asset');
             var willCue = false,
                 isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -332,88 +318,61 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
             }
             this.play(this.assets[this.current], true);
         }
+        this.initialize = function () {
+            this.player = new TVPage.player({
+                techOrder: 'html5,flash',
+                analytics: { tvpa: this.analytics },
+                apiBaseUrl: '//api.tvpage.com/v1',
+                swf: '//appcdn.tvpage.com/player/assets/tvp/tvp-'+this.version+'-flash.swf',
+                onReady: function(e, pl){
+                    that.instance = pl;
+                    that.resize();
 
-        var checks = 0;
-        (function libsReady() {
-            setTimeout(function() {
-                if ( !isset(window,'TVPage') || !isset(window,'_tvpa') ) {
-                    (++checks < 50) ? libsReady() : console.log('limit reached');
-                } else {
+                    //We don't want to resize the player here on fullscreen... we need the player be.
+                    if (isset(window,'BigScreen')) {
+                        BigScreen.onchange = function(){
+                            that.isFullScreen = !that.isFullScreen;
+                        };
+                    }
 
-                    //We create insntances on the tvpage player.
-                    that.player = new TVPage.player({
-                        techOrder: 'html5,flash',
-                        analytics: { tvpa: that.analytics },
-                        apiBaseUrl: '//api.tvpage.com/v1',
-                        swf: '//appcdn.tvpage.com/player/assets/tvp/tvp-'+that.version+'-flash.swf',
-                        onReady: function(e, pl){
-                            that.instance = pl;
-                            that.resize();
-
-                            //We don't want to resize the player here on fullscreen... we need the player be.
-                            if (isset(window,'BigScreen')) {
-                                BigScreen.onchange = function(){
-                                    that.isFullScreen = !that.isFullScreen;
-                                };
-                            }
-
-                            //We can't resize using local references when we are inside an iframe. Alternative is to receive external
-                            //size from host.
-                            if (window.location !== window.parent.location && (/iPad|iPhone|iPod|iPhone Simulator|iPad Simulator/.test(navigator.userAgent) && !window.MSStream)){
-                                var onHolderResize = function (e) {
-                                    if (!e || !isset(e, 'data') || !isset(e.data, 'event') || 'tvp_carousel:modal_holder_resize' !== e.data.event) return;
-                                    var size = e.data.size || [];
-                                    that.resize(size[0], size[1]);
-                                };
-                                window.removeEventListener('message', onHolderResize, false);
-                                window.addEventListener('message', onHolderResize, false);
-                            } else {
-                                var onWindowResize = Utils.debounce(that.resize,50);
-                                window.removeEventListener('message', onWindowResize, false);
-                                window.addEventListener('resize', onWindowResize);
-                            }
-
-                            that.el.querySelector('.tvp-progress-bar').style.backgroundColor = that.progressColor;
-                            var current = 0;
-                            if (startWith && startWith.length) {
-                                for (var i = 0; i < that.assets.length; i++) {
-                                    if (that.assets[i].assetId === startWith) current = i;
-                                }
-                            }
-
-                            that.current = current;                            
-                            that.play(that.assets[that.current]);
-                            if (window.DEBUG) {
-                                console.debug("endTime = " + performance.now());
-                            }
-                        },
-                        onStateChange: function(e){
-                            if ('tvp:media:videoended' !== e) return;
-                            that.current++;
-                            if (!that.assets[that.current]) {
-                                that.current = 0;
-                            }
-
-                            var next = that.assets[that.current];
-                            that.play(next, true);
-                            if(that.onNext) {
-                                that.onNext(next);
-                            }
-                        },
-                        divId: that.el.id,
-                        controls: {
-                            active: true,
-                            floater: {
-                                removeControls: that.removeControls,
-                                transcript: that.transcript
-                            }
+                    that.el.querySelector('.tvp-progress-bar').style.backgroundColor = that.progressColor;
+                    var current = 0;
+                    if (startWith && startWith.length) {
+                        for (var i = 0; i < that.assets.length; i++) {
+                            if (that.assets[i].assetId === startWith) current = i;
                         }
-                    });
+                    }
 
+                    that.current = current;                            
+                    that.play(that.assets[that.current]);
+                    if (window.DEBUG) {
+                        console.debug("endTime = " + performance.now());
+                    }
+                },
+                onStateChange: function(e){
+                    if ('tvp:media:videoended' !== e) return;
+                    that.current++;
+                    if (!that.assets[that.current]) {
+                        that.current = 0;
+                    }
+
+                    var next = that.assets[that.current];
+                    that.play(next, true);
+                    if(that.onNext) {
+                        that.onNext(next);
+                    }
+                },
+                divId: that.el.id,
+                controls: {
+                    active: true,
+                    floater: {
+                        removeControls: that.removeControls,
+                        transcript: that.transcript
+                    }
                 }
-            },150);
-        })();
-
+            });            
+        }
+        this.initialize();
     }
 
     window.Player = Player;
@@ -424,7 +383,8 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
     var isProductsInitialized = true;
     var analytics = null;
 
-    var productTemplate = '<div class="tvp-product-image" style="background-image: url({imageUrl})"></div>';
+    var productTemplate = '<div class="tvp-product-image" style="background-image: url({imageUrl})"></div>'
+        +'<span class="tvp-product-text">{title}</span>';
 
     var productFeatureTemplate = '<span class="tvp-featured-image" style="background-image: url({imageUrl})" ></span>'
         +'<span class="tvp-featured-info">'
@@ -508,12 +468,17 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
         loadProducts(vid, lid, 
             function (data) {
                 var $sscontent = $(products).find('.ss-content');
+
                 if (data.length) {
+                    
                     var itemTemplate = Utils.isMobile ? productFeatureTemplate : productTemplate;
+                    var _container = null;
+
                     productData = data;
 
-                    if (!Utils.isMobile) {
-                        var _container;
+                    if (!isProductsInitialized) {$(products).slick('unslick').children().remove();}
+
+                    if (!Utils.isMobile) {                        
                         if($sscontent.length){
                             $sscontent.children().remove();
                             _container = $sscontent;
@@ -521,58 +486,75 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
                         else{
                             _container = products;
                         }
+                    }
 
-                        for (var i = 0; i < data.length; i++) {
-                            var row = document.createElement('a');                    
-                            row.setAttribute('data-id', data[i].id);
+                    var $c = $('<div/>');
+                    $c.addClass('tvp-product-container');
+                    for (var i = 0; i < data.length; i++) {
+                        var row = document.createElement('a');                    
+                        row.setAttribute('data-id', data[i].id);
+                        if (i===0) {
+                            row.className = 'tvp-product-item tvp-active';
+                        }
+                        else{
                             row.className = 'tvp-product-item';
-                            row.innerHTML = Utils.tmpl(itemTemplate, data[i]);
-                            
-                            $(row).appendTo(_container);
-                            
-                            analytics.track('pi',{
-                                vd: data[i].entityIdParent,
-                                ct: data[i].id,
-                                pg: this.channel.id
-                            });
-                            row.addEventListener('click', pkTrack, false);
                         }
-                        if (isProductsInitialized) {
-                            SimpleScrollbar.initEl(products);
+                        
+                        row.innerHTML = Utils.tmpl(itemTemplate, data[i]);
+                        if (Utils.isMobile) {
+                            row.href = data[i].linkUrl;
+                            row.setAttribute('target', '_blank');
                         }
-                        renderFeaturedProduct(data[0]);
-                    }
-                    else{
-                        // apply slick carousel
-                        if (!isProductsInitialized) {$(products).slick('unslick').children().remove();}
-                            for (var i = 0; i < data.length; i++) {
-                                var row = document.createElement('a');                    
-                                row.setAttribute('data-id', data[i].id);
-                                row.className = 'tvp-product-item';
-                                row.innerHTML = Utils.tmpl(itemTemplate, data[i]);
-                                if (Utils.isMobile) {
-                                    row.href = data[i].linkUrl;
-                                    row.setAttribute('target', '_blank');
-                                }
-                                else{
-                                    row.href = '#';
-                                }
-                                
-                                $(row).appendTo($(products));
-                                analytics.track('pi',{
-                                    vd: data[i].entityIdParent,
-                                    ct: data[i].id,
-                                    pg: this.channel.id
-                                });
-                                row.addEventListener('click', pkTrack, false);
-                            }
+                        else{
+                            row.href = "#";
+                        }
+                        $c.append(row);
 
-                            $(products).slick({
-                                arrow: false,
-                                slidesToShow: 1,
-                                slidesToScroll: 1
-                            });
+                        if ((i+1)%4 !== 0) {
+                            if (i === (data.length -1)) {
+                                var $x = $c.clone();
+                                $x.appendTo(_container);
+                            }
+                        }
+                        else{
+                            var $x = $c.clone();
+                            $x.appendTo(_container);
+                            $c.html('');
+                        }
+                        
+                        analytics.track('pi',{
+                            vd: data[i].entityIdParent,
+                            ct: data[i].id,
+                            pg: this.channel.id
+                        });
+                        row.addEventListener('click', pkTrack, false);
                     }
+
+                    $(_container).slick({
+                        dots: true,                        
+                        slidesToShow: 1,
+                        slidesToScroll: 1,
+                        prevArrow: '<span class="tvp-products-button tvp-products-prev" data-dir="prev">'
+                                        +'<span class="tvp-icon tvp-icon-chevron-left" data-dir="prev"></span>'
+                                    +'</span>',
+                        nextArrow: '<span class="tvp-products-button tvp-products-next" data-dir="next">'
+                                        +'<span class="tvp-icon tvp-icon-chevron-right" data-dir="next"></span>'
+                                    +'</span>'
+                    });
+
+                    // if (isProductsInitialized && !Utils.isMobile) {
+                    //     SimpleScrollbar.initEl(products);
+                    // }
+
+                    if (!Utils.isMobile){ renderFeaturedProduct(data[0]) }
+                    // else {
+                    //     $(products).slick({
+                    //         arrow: false,
+                    //         slidesToShow: 1,
+                    //         slidesToScroll: 1
+                    //     });
+                    // }
+
                     isProductsInitialized = false;
                 }
                 else{
@@ -616,9 +598,9 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
             $(that.el).find('#videoTitle').html(e.assetTitle);
         };
         this.onResize = function (e, d) {
-            if (!Utils.isMobile) {                
-                $(that.el).find('#tvpProductsView').height(d[1]);
-            }
+            // if (!Utils.isMobile) {                
+            //     $(that.el).find('#tvpProductsView').height(d[1]);
+            // }
             // else{
                 if (window.parent) {
                     window.parent.postMessage({
@@ -703,7 +685,7 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
 
             var getChannelVideos = function(callback){
                 var channel = that.channel || {};
-                if (Utils.isEmpty(channel) || !channel.id) return console.log('bad channel');
+                if (Utils.isEmpty(channel) || !channel.id) return; //console.log('bad channel');
                 var params = channel.parameters || {};
                 var src = '//api.tvpage.com/v1/channels/' + channel.id + '/videos?X-login-id=' + that.loginId;
                 for (var p in params) { src += '&' + p + '=' + params[p];}
@@ -903,7 +885,7 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
             (function(settings){
                 var inlineSettings = JSON.parse(JSON.stringify(settings));
                 var name = settings.name;
-
+                
                 render(body,{
                     id: name,
                     title: settings.title || 'Recommended Videos'
@@ -923,8 +905,12 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
                     }
 
                     inlineSettings = extend(inlineSettings, opts);
-
-                    Inline(name, inlineSettings);
+                    $.when(
+                        $.getScript('//a.tvpage.com/tvpa.min.js'),
+                        $.getScript('https://cdnjs.tvpage.com/tvplayer/tvp-'+opts.player_version+'.min.js')
+                    ).done(function (a, b) {
+                        Inline(name, inlineSettings);
+                    });
                 });
 
             }(getSettings('dynamic')));
@@ -936,27 +922,17 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
                 if(Utils.isMobile) {
                     document.getElementById(name).classList.add('mobile');
                 }
-                
-                Inline(name, inlineSettings);
+
+                $.when(
+                    $.getScript('//a.tvpage.com/tvpa.min.js'),
+                    $.getScript('https://cdnjs.tvpage.com/tvplayer/tvp-'+inlineSettings.player_version+'.min.js')
+                ).done(function (a, b) {
+                    Inline(name, inlineSettings);
+                });
 
             }(getSettings('static')));
         }
     };
 
-    var not = function(obj){return 'undefined' === typeof obj};
-    if (not(window.jQuery) || not(window.Inline) || not(window.Utils)) {
-        var libsCheck = 0;
-        (function libsReady() {
-            setTimeout(function(){
-                if (not(window.jQuery) || not(window.Inline) || not(window.Utils) || not(window.Player)) {
-                    (++libsCheck < 50) ? libsReady() : console.log('limit reached');
-                } else {
-                    initialize();
-                }
-            },150);
-        })();
-    } else {
-        initialize();
-    }
-
+    initialize();
 }(window, document));

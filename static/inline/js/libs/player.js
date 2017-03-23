@@ -11,26 +11,12 @@
         },
         isFunction = function(obj){
             return 'undefined' !== typeof obj;
-        },
-        debounce = function(func,wait,immediate) {
-            var timeout = null;
-            return function() {
-                var context = this, args = arguments;
-                var later = function() {
-                    timeout = null;
-                    if (!immediate) func.apply(context, args);
-                };
-                var callNow = immediate && !timeout;
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-                if (callNow) func.apply(context, args);
-            };
         };
 
     //The player singleton. We basically create an instance from the tvpage
     //player and expose most utilities, helping to encapsualte what is required for a few players to co-exist.
     function Player(el, options, startWith) {
-        if (!el || !isset(options) || !isset(options.data) || options.data.length <= 0) return console.log('bad args');
+        if (!el || !isset(options) || !isset(options.data) || options.data.length <= 0) return; // console.log('bad args');
 
         this.isFullScreen = false;
         this.initialResize = true;
@@ -129,7 +115,7 @@
         };
 
         this.play = function(asset,ongoing){
-            if (!asset) return console.log('need asset');
+            if (!asset) return; // console.log('need asset');
             var willCue = false,
                 isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -206,88 +192,61 @@
             }
             this.play(this.assets[this.current], true);
         }
+        this.initialize = function () {
+            this.player = new TVPage.player({
+                techOrder: 'html5,flash',
+                analytics: { tvpa: this.analytics },
+                apiBaseUrl: '//api.tvpage.com/v1',
+                swf: '//appcdn.tvpage.com/player/assets/tvp/tvp-'+this.version+'-flash.swf',
+                onReady: function(e, pl){
+                    that.instance = pl;
+                    that.resize();
 
-        var checks = 0;
-        (function libsReady() {
-            setTimeout(function() {
-                if ( !isset(window,'TVPage') || !isset(window,'_tvpa') ) {
-                    (++checks < 50) ? libsReady() : console.log('limit reached');
-                } else {
+                    //We don't want to resize the player here on fullscreen... we need the player be.
+                    if (isset(window,'BigScreen')) {
+                        BigScreen.onchange = function(){
+                            that.isFullScreen = !that.isFullScreen;
+                        };
+                    }
 
-                    //We create insntances on the tvpage player.
-                    that.player = new TVPage.player({
-                        techOrder: 'html5,flash',
-                        analytics: { tvpa: that.analytics },
-                        apiBaseUrl: '//api.tvpage.com/v1',
-                        swf: '//appcdn.tvpage.com/player/assets/tvp/tvp-'+that.version+'-flash.swf',
-                        onReady: function(e, pl){
-                            that.instance = pl;
-                            that.resize();
-
-                            //We don't want to resize the player here on fullscreen... we need the player be.
-                            if (isset(window,'BigScreen')) {
-                                BigScreen.onchange = function(){
-                                    that.isFullScreen = !that.isFullScreen;
-                                };
-                            }
-
-                            //We can't resize using local references when we are inside an iframe. Alternative is to receive external
-                            //size from host.
-                            if (window.location !== window.parent.location && (/iPad|iPhone|iPod|iPhone Simulator|iPad Simulator/.test(navigator.userAgent) && !window.MSStream)){
-                                var onHolderResize = function (e) {
-                                    if (!e || !isset(e, 'data') || !isset(e.data, 'event') || 'tvp_carousel:modal_holder_resize' !== e.data.event) return;
-                                    var size = e.data.size || [];
-                                    that.resize(size[0], size[1]);
-                                };
-                                window.removeEventListener('message', onHolderResize, false);
-                                window.addEventListener('message', onHolderResize, false);
-                            } else {
-                                var onWindowResize = Utils.debounce(that.resize,50);
-                                window.removeEventListener('message', onWindowResize, false);
-                                window.addEventListener('resize', onWindowResize);
-                            }
-
-                            that.el.querySelector('.tvp-progress-bar').style.backgroundColor = that.progressColor;
-                            var current = 0;
-                            if (startWith && startWith.length) {
-                                for (var i = 0; i < that.assets.length; i++) {
-                                    if (that.assets[i].assetId === startWith) current = i;
-                                }
-                            }
-
-                            that.current = current;                            
-                            that.play(that.assets[that.current]);
-                            if (window.DEBUG) {
-                                console.debug("endTime = " + performance.now());
-                            }
-                        },
-                        onStateChange: function(e){
-                            if ('tvp:media:videoended' !== e) return;
-                            that.current++;
-                            if (!that.assets[that.current]) {
-                                that.current = 0;
-                            }
-
-                            var next = that.assets[that.current];
-                            that.play(next, true);
-                            if(that.onNext) {
-                                that.onNext(next);
-                            }
-                        },
-                        divId: that.el.id,
-                        controls: {
-                            active: true,
-                            floater: {
-                                removeControls: that.removeControls,
-                                transcript: that.transcript
-                            }
+                    that.el.querySelector('.tvp-progress-bar').style.backgroundColor = that.progressColor;
+                    var current = 0;
+                    if (startWith && startWith.length) {
+                        for (var i = 0; i < that.assets.length; i++) {
+                            if (that.assets[i].assetId === startWith) current = i;
                         }
-                    });
+                    }
 
+                    that.current = current;                            
+                    that.play(that.assets[that.current]);
+                    if (window.DEBUG) {
+                        console.debug("endTime = " + performance.now());
+                    }
+                },
+                onStateChange: function(e){
+                    if ('tvp:media:videoended' !== e) return;
+                    that.current++;
+                    if (!that.assets[that.current]) {
+                        that.current = 0;
+                    }
+
+                    var next = that.assets[that.current];
+                    that.play(next, true);
+                    if(that.onNext) {
+                        that.onNext(next);
+                    }
+                },
+                divId: that.el.id,
+                controls: {
+                    active: true,
+                    floater: {
+                        removeControls: that.removeControls,
+                        transcript: that.transcript
+                    }
                 }
-            },150);
-        })();
-
+            });            
+        }
+        this.initialize();
     }
 
     window.Player = Player;
