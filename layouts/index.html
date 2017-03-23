@@ -2331,28 +2331,23 @@ cursor: pointer;
                         </div>
                     </div>
                 </div>
-                <!-- ## Include in your page ##-->
-                <!-- tvpage placeholder -->
-                <div id="tvpRB"></div>
-                <!-- tvpage placeholder -->
-                <!-- ## Include before </body> ##-->
-                <!-- tvpage code -->
-                <script type="text/javascript">
-   window.__TVPage__ = window.__TVPage__ || {};
-    __TVPage__.config = __TVPage__.config || {};
-    __TVPage__.config['tvp-gallery'] = {
-      loginid: '1758151',
-      channel: {
-        id: '25901359'
-      }
-    };
-  (function(d) {
-    var s = d.createElement('script');
-    s.src = '//app.tvpage.com/tvsite/player.reebok.com/loader';
-    d.body.appendChild(s);
-  })(document);
+<!-- tvpage code -->
+<a class="tvp-inline"
+    data-id="inline-1"
+    data-domain='{{$.Site.BaseURL}}'
+    href='{{ "/tvpwidget/inline/" | absURL }}'>
+TVPage Inline
+</a>
+<script>
+    (function(d,l) {
+        var s = d.createElement('script');
+        if (d.getElementById(l)) return;
+        s.src = '/inline/loader{{ if not (getenv "HUGO_DEBUG") }}.min{{ end }}.js';
+        s.id = l;
+        d.body.appendChild(s);
+    })(document,'tvp-loader');
 </script>
-                <!-- tvpage code -->
+<!-- tvpage code -->
 
 
  
