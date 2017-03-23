@@ -1,3 +1,4 @@
+@import "reebok-fonts.scss";
 @import "mixins.scss";
 @import "vendor/slick.scss";
 @import "vendor/slick-theme.scss";
@@ -9,9 +10,10 @@ body {
     text-rendering: optimizeLegibility !important;
     -webkit-font-smoothing: antialiased !important;
     -moz-osx-font-smoothing: grayscale !important;
-    font-family: 'Open Sans', sans-serif;
+    font-family: 'DINWebPro-CondBold', Helvetica, sans-serif;
     background-color: #000;
     color: #fff;
+    margin: 0;
 }
 .tvp-control-volume-selector-container,
 .tvp-controlbar-floater {
@@ -37,8 +39,11 @@ body {
 }
 // Namespace all the things
 .iframe-content {
+    padding-top: 7%;
+    @include aspect-ratio(83, 38.5);    
     // box-sizing: border-box;
     // width: 100%;
+    position: relative;
     .tvp-content {
         padding: 0 0;
     }
@@ -112,25 +117,37 @@ body {
         }
     }
     .tvp-row-titles {
-        height: 46px;
+        height: 100px;
         width: 100%;
         h1, h2 {
-            font-size: 150%;
-            line-height: 43px;
-            padding: 0;
             margin: 0;
             font-weight: normal;
+            font-family: 'DINWebPro-CondMedium', Helvetica, sans-serif;
+        }
+        h1{
+            padding: 38px 0 22px 0;
+            font-size: 36px;
+            height: 40px;
+            line-height: 36px
+        }
+        h2{
+            padding: 46px 0 22px 0;
+            font-size: 28px;
+            height: 32px;
+            line-height: 36px
         }
         .tvp-row-player-title {
-            display: inline-block;
-            // height: 100%;
-            width: 57.73%;
+            float: left;
+            height: 100%;
+            width: 53.1165%;
             white-space: nowrap;
+            overflow: hidden;
         }
         .tvp-row-featured-title {
-            display: inline-block;
+            float: left;
             height: 100%;
-            margin-left: 2.43%;
+            margin-left: 1.2195%;
+            width: 22.2222;
         }
     }
     .tvp-row {
@@ -164,9 +181,11 @@ body {
         @include aspect-ratio(16, 9);
         float: left;
         overflow: hidden;
-        width: 57.73%;        
+        width: 53.1165%;        
         .tvp-content {
             padding: 0;
+            height: 100%;
+            width: 100%;
         }
         #tvp-player {
             height: 100%;
@@ -226,21 +245,22 @@ body {
     }
     .tvp-featured {
         float: left;
-        margin-left: 2.73%;
-        width: 24.82%;
+        height: 100%;
+        margin-left: 1.2195%;
+        width: 22.2222%;
         display: inline-block;
         // h2{
         //     display: none;
         // }
         .tvp-featured-product {
-            background-color: #EBEBEB;
+            background: #fff;
             box-sizing: border-box;
             display: block;
-            // height: 100%;
-            padding: 17px 16px;
+            height: 100%;
+            padding: 18px 26px;
             width: 100%;
             .tvp-featured-image {
-                @include aspect-ratio(230, 169);
+                @include aspect-ratio(173, 173);
                 display: block;
                 background-size: cover;
                 background-repeat: no-repeat;
@@ -249,24 +269,25 @@ body {
             }
             .tvp-featured-info {
                 display: block;
-                // height: 28.8888%;
+                height: 28.8888%;
                 font-size: 18px;
                 width: 100%;
+                padding-bottom: 30px;
                 &-title {
                     color: #000;
                     display: block;
                     width: 100%;
-                    font-size: 14px;
-                    line-height: 19px;
-                    max-height: 38px;
+                    font-size: 16px;
+                    line-height: 18px;
+                    max-height: 50%;
                     overflow: hidden;
-                    text-transform: capitalize;
-                    margin-bottom: 15px;
+                    text-transform: capitalize;                    
                 }
                 &-price {
                     color: #000;
+                    display: block;
                     float: left;
-                    font-size: 14px;
+                    font-size: 16px;
                     line-height: 19px;
                     letter-spacing: 0.005em;
                     font-weight: bold;
@@ -279,6 +300,7 @@ body {
                     line-height: 23pt;
                 }
                 &-view-details {
+                    display: none;
                     cursor: pointer;
                     width: 100%;
                     background-color: #DDDDDD;

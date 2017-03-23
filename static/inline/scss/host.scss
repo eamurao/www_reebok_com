@@ -127,7 +127,9 @@ div[class^="tvp-"] {
 }
 
 .tvp-iframe-holder {
-  position: relative;
+  position: relative;  
+  padding: 0 62px 0;
+  background-color: #000;
 }
 
 /*This is the gallery iframe*/
@@ -136,7 +138,6 @@ div[class^="tvp-"] {
   left: 0;
   width: 100%;
   height: 100%;
-  position: absolute;
 }
 
 .tvp-modal-close {
