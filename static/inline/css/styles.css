@@ -434,10 +434,10 @@ body {
   -webkit-transition: border .5s ease-out, color .5s linear, opacity .3s ease-out;
           transition: border .5s ease-out, color .5s linear, opacity .3s ease-out;
 }
-.iframe-content .tvp-active, .iframe-content .tvp-products-scroller .tvp-product-container.slick-active .tvp-product-item:first-child {
+.iframe-content .tvp-active {
   opacity: 1;
 }
-.iframe-content .tvp-active:after, .iframe-content .tvp-products-scroller .tvp-product-container.slick-active .tvp-product-item:first-child:after {
+.iframe-content .tvp-active:after {
   border-color: #fff;
 }
 .iframe-content .tvp-icon {
@@ -641,7 +641,7 @@ body {
   -webkit-transform: scale(0.6);
           transform: scale(0.6);
 }
-.iframe-content .tvp-player #tvp-controls.tvp-active .tvp-icon-play, .iframe-content .tvp-player .tvp-products-scroller .tvp-product-container.slick-active #tvp-controls.tvp-product-item:first-child .tvp-icon-play, .iframe-content .tvp-products-scroller .tvp-product-container.slick-active .tvp-player #tvp-controls.tvp-product-item:first-child .tvp-icon-play {
+.iframe-content .tvp-player #tvp-controls.tvp-active .tvp-icon-play {
   display: block;
 }
 .iframe-content .tvp-player #tvp-controls.tvp-not-active .tvp-icon-play {
@@ -794,6 +794,12 @@ body {
 }
 .iframe-content .tvp-products-scroller .tvp-product-container {
   padding: 3px;
+}
+.iframe-content .tvp-products-scroller .tvp-product-container.slick-active .tvp-product-item.tvp-active {
+  opacity: 1;
+}
+.iframe-content .tvp-products-scroller .tvp-product-container.slick-active .tvp-product-item.tvp-active:after {
+  border-color: #fff;
 }
 .iframe-content .tvp-products-scroller .tvp-product-container.slick-active .tvp-product-item:after {
   bottom: -3px;

@@ -163,6 +163,11 @@
                                     +'</span>'
                     });
 
+                    $(_container).on('beforeChange', function(event, slick, currentSlide, nextSlide) {
+                        var prodItem = $(slick.$slides[nextSlide]).find('.tvp-product-item')[0];
+                        $(prodItem).addClass('tvp-active');
+                    });
+
                     // if (isProductsInitialized && !Utils.isMobile) {
                     //     SimpleScrollbar.initEl(products);
                     // }

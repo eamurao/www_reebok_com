@@ -542,6 +542,11 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
                                     +'</span>'
                     });
 
+                    $(_container).on('beforeChange', function(event, slick, currentSlide, nextSlide) {
+                        var prodItem = $(slick.$slides[nextSlide]).find('.tvp-product-item')[0];
+                        $(prodItem).addClass('tvp-active');
+                    });
+
                     // if (isProductsInitialized && !Utils.isMobile) {
                     //     SimpleScrollbar.initEl(products);
                     // }
