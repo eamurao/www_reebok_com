@@ -694,6 +694,15 @@ body {
   overflow: hidden;
   text-transform: capitalize;
 }
+.iframe-content .tvp-featured .tvp-featured-product .tvp-featured-info-gender {
+  color: #B7B7B7;
+  display: block;
+  font-size: 16px;
+  font-family: 'DINWebPro-CondMedium', Helvetica, sans-serif;
+  line-height: 30px;
+  letter-spacing: 0.005em;
+  text-transform: capitalize;
+}
 .iframe-content .tvp-featured .tvp-featured-product .tvp-featured-info-price {
   color: #000;
   display: block;

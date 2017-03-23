@@ -429,6 +429,7 @@ d.slice(e-c+1,e+c+2).addClass("slick-active").attr("aria-hidden","false")),0===a
     var productFeatureTemplate = '<span class="tvp-featured-image" style="background-image: url({imageUrl})" ></span>'
         +'<span class="tvp-featured-info">'
         +'<span class="tvp-featured-info-title">{title}</span>'
+        +'<span class="tvp-featured-info-gender">{gender}</span>'
         +'<span class="tvp-featured-info-price">${price}</span>'
         +'<span class="tvp-featured-info-rating">{formattedRating}</span>'        
         +'<span class="clear"></span>'
